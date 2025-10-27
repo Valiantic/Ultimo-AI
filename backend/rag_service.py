@@ -5,15 +5,15 @@ This is the core module that implements the RAG (Retrieval Augmented Generation)
 It handles:
 1. PDF text extraction
 2. Text chunking
-3. Vector embeddings generation
+3. Vector embeddings generation using HuggingFace
 4. Storage in Qdrant vector database
 5. Similarity search for relevant context
-6. Question answering using Google Gemini
+6. Question answering using OpenAI GPT
 
 RAG Process Flow:
 1. User uploads PDF → Extract text → Split into chunks → Create embeddings → Store in Qdrant
-2. User asks question → Create question embedding → Search Qdrant for similar chunks → 
-   Send chunks + question to Gemini → Return answer
+2. User asks question → Create question embedding → Search Qdrant for similar chunks →
+   Send chunks + question to OpenAI → Return answer
 """
 
 from typing import List, Tuple
@@ -22,7 +22,8 @@ from io import BytesIO
 
 # LangChain imports
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_openai import ChatOpenAI
 from langchain_qdrant import Qdrant  # Updated import name
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -38,26 +39,26 @@ from config import Settings
 class RAGService:
     """
     RAG Service Class
-    
+
     This class encapsulates all RAG functionality.
     It's initialized once and reused for all requests.
-    
+
     Architecture Benefits:
     - Singleton pattern: One instance for the entire app
-    - Connection pooling: Reuses Qdrant and Gemini connections
+    - Connection pooling: Reuses Qdrant and OpenAI connections
     - Configuration centralization: All settings in one place
     """
     
     def __init__(self, settings: Settings):
         """
         Initialize the RAG Service
-        
+
         This sets up all the necessary components:
         - Qdrant client and vector store
-        - Google Gemini embeddings
-        - Google Gemini LLM
+        - HuggingFace embeddings (all-MiniLM-L6-v2)
+        - OpenAI LLM (GPT-3.5-turbo)
         - Text splitter for chunking
-        
+
         Args:
             settings: Application settings with API keys and configuration
         """
@@ -70,11 +71,10 @@ class RAGService:
             api_key=settings.qdrant_api_key,
         )
         
-        # Initialize OpenAI Embeddings
-        # Uses OpenAI's text-embedding-3-small model
-        self.embeddings = OpenAIEmbeddings(
-            model="text-embedding-3-small",
-            openai_api_key=settings.openai_api_key
+        # Initialize HuggingFace Embeddings
+        # Uses all-MiniLM-L6-v2 model (384-dimensional embeddings)
+        self.embeddings = HuggingFaceEmbeddings(
+            model_name="sentence-transformers/all-MiniLM-L6-v2"
         )
         
         # Initialize Text Splitter
@@ -118,9 +118,9 @@ class RAGService:
         except Exception:
             # Collection doesn't exist, create it
             print(f"Creating collection '{self.settings.collection_name}'...")
-            
-            # OpenAI's text-embedding-3-small model produces 1536-dimensional vectors
-            vector_size = 1536
+
+            # HuggingFace all-MiniLM-L6-v2 model produces 384-dimensional vectors
+            vector_size = 384
             
             self.qdrant_client.create_collection(
                 collection_name=self.settings.collection_name,
@@ -290,14 +290,15 @@ class RAGService:
     async def health_check(self) -> bool:
         """
         Health Check
-        
+
         Verifies connections to:
         - Qdrant (vector database)
-        - Google Gemini (embeddings & LLM)
-        
+        - HuggingFace (embeddings)
+        - OpenAI (LLM)
+
         Returns:
             bool: True if all services are healthy
-            
+
         Raises:
             Exception: If any service is unavailable
         """
@@ -305,10 +306,10 @@ class RAGService:
             # Check Qdrant connection
             collections = self.qdrant_client.get_collections()
             print(f"Qdrant is healthy. Found {len(collections.collections)} collections")
-            
-            # Check Gemini by creating a simple embedding
+
+            # Check HuggingFace embeddings by creating a simple embedding
             test_embedding = self.embeddings.embed_query("test")
-            print(f"Gemini is healthy. Embedding dimension: {len(test_embedding)}")
+            print(f"HuggingFace embeddings are healthy. Embedding dimension: {len(test_embedding)}")
             
             return True
         except Exception as e:

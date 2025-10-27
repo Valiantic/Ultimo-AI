@@ -10,7 +10,8 @@ pydantic-settings==2.1.0      # Settings management
 
 # LangChain ecosystem
 langchain>=0.1.0              # LangChain core library for RAG
-langchain-openai              # OpenAI integration for embeddings and chat
+langchain-openai              # OpenAI integration for chat LLM
+langchain-huggingface         # HuggingFace integration for embeddings
 langchain-qdrant              # Qdrant vector store integration
 langchain-community
 langsmith
@@ -25,8 +26,8 @@ qdrant-client>=1.9.0          # Qdrant vector database client (compatible versio
 # PDF processing
 PyPDF2==3.0.1                 # PDF parsing and text extraction
 
-# Google AI
-google-generativeai==0.3.2    # Google Gemini API client
+# HuggingFace dependencies
+sentence-transformers         # For HuggingFace embeddings models
 
 # CORS and security
 python-jose[cryptography]==3.3.0  # JWT tokens (for future authentication)
