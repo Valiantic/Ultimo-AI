@@ -27,7 +27,6 @@ from models import (
     QueryResponse, 
     UploadResponse, 
     HealthResponse,
-    ErrorResponse
 )
 from rag_service import RAGService
 
@@ -41,7 +40,7 @@ logger = logging.getLogger(__name__)
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="RAG Chatbot API",
+    title="Ultimo AI RAG Chatbot",
     description="A RAG-based chatbot API that answers questions about uploaded PDF documents",
     version="1.0.0",
     docs_url="/docs",  # Swagger UI at /docs
@@ -82,11 +81,6 @@ async def startup_event():
     - Running health checks
     - Logging startup info
     """
-    logger.info("Starting RAG Chatbot API...")
-    logger.info(f"Frontend URL: {settings.frontend_url}")
-    logger.info(f"Qdrant URL: {settings.qdrant_url}")
-    logger.info(f"Collection: {settings.collection_name}")
-    logger.info(f"LLM Model: {settings.llm_model}")
     
     try:
         # Verify connections on startup

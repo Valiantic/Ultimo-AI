@@ -24,22 +24,20 @@ class Settings(BaseSettings):
     Pydantic automatically loads these from environment variables or .env file.
     
     Attributes:
-        gemini_api_key: Google Gemini API key for embeddings and LLM
+        gemini_api_key: Google Gemini API key for embeddings and LLM (REQUIRED)
         qdrant_url: Qdrant cloud cluster URL (includes port :6333)
         qdrant_api_key: Qdrant API key for authentication
         frontend_url: Frontend URL for CORS configuration
         collection_name: Name of the Qdrant collection to store vectors
         chunk_size: Size of text chunks for splitting documents
         chunk_overlap: Overlap between chunks to maintain context
-        embedding_model: Google embedding model to use
+        embedding_model: Google Gemini embedding model to use
         llm_model: Google Gemini LLM model for generation
     """
     
     # API Keys - REQUIRED
-    # OpenAI API Key - REQUIRED
-    openai_api_key: str
-    # (Optional) Google Gemini API key for legacy use
-    gemini_api_key: str = ""
+    # Google Gemini API key - REQUIRED
+    gemini_api_key: str
     qdrant_url: str
     qdrant_api_key: str
     
@@ -54,7 +52,7 @@ class Settings(BaseSettings):
     chunk_overlap: int = 200  # Overlap to maintain context between chunks
     
     # Model Configuration
-    embedding_model: str = "text-embedding-3-small"  # OpenAI embedding model
+    embedding_model: str = "models/text-embedding-004"  # Google Gemini embedding model
     llm_model: str = "gemini-2.0-flash-exp"  # Latest Gemini model
     
     # Model Parameters

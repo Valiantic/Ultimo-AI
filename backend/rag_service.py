@@ -5,15 +5,15 @@ This is the core module that implements the RAG (Retrieval Augmented Generation)
 It handles:
 1. PDF text extraction
 2. Text chunking
-3. Vector embeddings generation using HuggingFace
+3. Vector embeddings generation using Google Generative AI
 4. Storage in Qdrant vector database
 5. Similarity search for relevant context
-6. Question answering using OpenAI GPT
+6. Question answering using Google Gemini
 
 RAG Process Flow:
 1. User uploads PDF → Extract text → Split into chunks → Create embeddings → Store in Qdrant
 2. User asks question → Create question embedding → Search Qdrant for similar chunks →
-   Send chunks + question to OpenAI → Return answer
+   Send chunks + question to Gemini → Return answer
 """
 
 from typing import List, Tuple
@@ -22,8 +22,7 @@ from io import BytesIO
 
 # LangChain imports
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_openai import ChatOpenAI
+from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
 from langchain_qdrant import Qdrant  # Updated import name
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -55,28 +54,29 @@ class RAGService:
 
         This sets up all the necessary components:
         - Qdrant client and vector store
-        - HuggingFace embeddings (all-MiniLM-L6-v2)
-        - OpenAI LLM (GPT-3.5-turbo)
+        - Google Generative AI embeddings (text-embedding-004)
+        - Google Gemini LLM (gemini-2.0-flash-exp)
         - Text splitter for chunking
 
         Args:
             settings: Application settings with API keys and configuration
         """
         self.settings = settings
-        
+
         # Initialize Qdrant Client
         # This connects to your Qdrant Cloud cluster
         self.qdrant_client = QdrantClient(
             url=settings.qdrant_url,
             api_key=settings.qdrant_api_key,
         )
-        
-        # Initialize HuggingFace Embeddings
-        # Uses all-MiniLM-L6-v2 model (384-dimensional embeddings)
-        self.embeddings = HuggingFaceEmbeddings(
-            model_name="sentence-transformers/all-MiniLM-L6-v2"
+
+        # Initialize Google Generative AI Embeddings
+        # Uses Google's text-embedding-004 model (768-dimensional embeddings)
+        self.embeddings = GoogleGenerativeAIEmbeddings(
+            model=settings.embedding_model,
+            google_api_key=settings.gemini_api_key
         )
-        
+
         # Initialize Text Splitter
         # This splits long documents into smaller chunks
         # Why? LLMs have token limits and smaller chunks = better retrieval
@@ -86,13 +86,14 @@ class RAGService:
             length_function=len,  # How to measure chunk size
             separators=["\n\n", "\n", " ", ""]  # Split on paragraphs first, then sentences, then words
         )
-        
-        # Initialize OpenAI Chat LLM
-        self.llm = ChatOpenAI(
-            model="gpt-3.5-turbo",  # You can change to gpt-4o or other if desired
-            openai_api_key=settings.openai_api_key,
+
+        # Initialize Google Gemini Chat LLM
+        self.llm = ChatGoogleGenerativeAI(
+            model=settings.llm_model,
+            google_api_key=settings.gemini_api_key,
             temperature=settings.temperature,
-            max_tokens=settings.max_output_tokens
+            max_output_tokens=settings.max_output_tokens,
+            convert_system_message_to_human=True  # Gemini doesn't support system messages
         )
         
         # Ensure collection exists
@@ -119,9 +120,9 @@ class RAGService:
             # Collection doesn't exist, create it
             print(f"Creating collection '{self.settings.collection_name}'...")
 
-            # HuggingFace all-MiniLM-L6-v2 model produces 384-dimensional vectors
-            vector_size = 384
-            
+            # Google text-embedding-004 model produces 768-dimensional vectors
+            vector_size = 768
+
             self.qdrant_client.create_collection(
                 collection_name=self.settings.collection_name,
                 vectors_config=VectorParams(
@@ -215,7 +216,7 @@ class RAGService:
                 collection_name=self.settings.collection_name,  # Where to store
                 url=self.settings.qdrant_url,  # Qdrant cluster URL
                 api_key=self.settings.qdrant_api_key,  # Authentication
-                metadata=[{"filename": filename, "chunk_index": i} for i in range(len(chunks))]  # Metadata for each chunk
+                metadatas=[{"filename": filename, "chunk_index": i} for i in range(len(chunks))]  # Metadata for each chunk
             )
             
             print(f"✅ Embeddings created and stored in Qdrant")

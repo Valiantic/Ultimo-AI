@@ -352,7 +352,7 @@ export default function Home() {
           
           <CardContent className="flex-1 flex flex-col p-0">
             {/* Messages Display */}
-            <ScrollArea className="flex-1 p-4 scrollbar-thin">
+            <ScrollArea className="flex-1 p-4 scrollbar-thin max-h-[400px] overflow-y-auto">
               {messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full text-slate-400">
                   <div className="text-center space-y-2">
