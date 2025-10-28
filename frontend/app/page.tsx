@@ -283,7 +283,7 @@ export default function Home() {
         {/* Header */}
         <div className="text-center space-y-2">
           <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
-            RAG Chatbot
+            RAG Chat
           </h1>
           <p className="text-slate-600 dark:text-slate-300">
             Upload a PDF and ask questions about its content
@@ -350,9 +350,9 @@ export default function Home() {
             </CardDescription>
           </CardHeader>
           
-          <CardContent className="flex-1 flex flex-col p-0">
+          <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
             {/* Messages Display */}
-            <ScrollArea className="flex-1 p-4 scrollbar-thin max-h-[400px] overflow-y-auto">
+            <ScrollArea className="flex-1 p-4">
               {messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full text-slate-400">
                   <div className="text-center space-y-2">
@@ -445,6 +445,7 @@ export default function Home() {
         {/* Footer */}
         <div className="text-center text-sm text-slate-500">
           <p>Powered by FastAPI, Qdrant, LangChain & Google Gemini</p>
+          <p>By Steven Madali</p>
         </div>
       </div>
     </div>
