@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: ragchat
+    runtime: python
+    env: python
+    region: singapore  
+    plan: free  
+    branch: main  
+    rootDir: backend
+    buildCommand: |
+      pip install --upgrade pip setuptools wheel
+      pip install --only-binary=:all: -r requirements.txt || pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      # Python Version
+      - key: PYTHON_VERSION
+        value: 3.11.9
+
+      - key: GEMINI_API_KEY
+        sync: false
+
+      - key: QDRANT_URL
+        sync: false
+
+      - key: QDRANT_API_KEY
+        sync: false
+
+      - key: FRONTEND_URL
+        sync: false
+
+    healthCheckPath: /health
