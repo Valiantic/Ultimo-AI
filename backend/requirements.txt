@@ -15,7 +15,6 @@ langchain-qdrant==0.1.0              # Qdrant vector store integration
 langchain-community==0.0.38
 langsmith==0.1.0
 langchain-text-splitters==0.0.1
-tokenizers==0.15.2  # Updated version with better pre-built wheel support
 
 # langchain==0.1.13 supports langsmith>=0.1.0
 # langchain-community==0.0.38 also supports langsmith>=0.1.0
