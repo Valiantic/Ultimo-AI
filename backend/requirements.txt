@@ -9,12 +9,13 @@ pydantic==2.5.3               # Data validation using Python type hints
 pydantic-settings==2.1.0      # Settings management
 
 # LangChain ecosystem
-langchain>=0.1.0              # LangChain core library for RAG
-langchain-google-genai        # Google Generative AI integration for embeddings and LLM
-langchain-qdrant              # Qdrant vector store integration
-langchain-community
-langsmith
-langchain-text-splitters
+langchain==0.1.0              # LangChain core library for RAG
+langchain-google-genai==1.0.0        # Google Generative AI integration for embeddings and LLM
+langchain-qdrant==0.1.0              # Qdrant vector store integration
+langchain-community==0.0.38
+langsmith==0.1.0
+langchain-text-splitters==0.0.1
+tokenizers==0.15.0  # Pin tokenizers to avoid Rust compilation issues
 
 # langchain==0.1.13 supports langsmith>=0.1.0
 # langchain-community==0.0.38 also supports langsmith>=0.1.0
