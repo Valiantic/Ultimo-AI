@@ -8,30 +8,14 @@ services:
     branch: main  
     rootDir: backend
     buildCommand: |
-      export CARGO_HOME=/tmp/cargo
-      export RUSTUP_HOME=/tmp/rustup
-      export CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
-      export CARGO_NET_GIT_FETCH_WITH_CLI=true
+      export PIP_CACHE_DIR=/tmp/pip-cache
       pip install --upgrade pip setuptools wheel
-      pip install --prefer-binary -r requirements.txt
+      pip install --only-binary=:all: --prefer-binary -r requirements.txt || pip install --prefer-binary -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       # Python Version
       - key: PYTHON_VERSION
         value: 3.11.9
-
-      # Rust/Cargo directories for packages that need compilation
-      - key: CARGO_HOME
-        value: /tmp/cargo
-
-      - key: RUSTUP_HOME
-        value: /tmp/rustup
-
-      - key: CARGO_REGISTRIES_CRATES_IO_PROTOCOL
-        value: sparse
-
-      - key: CARGO_NET_GIT_FETCH_WITH_CLI
-        value: true
 
       - key: GEMINI_API_KEY
         sync: false
