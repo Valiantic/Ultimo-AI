@@ -12,7 +12,7 @@ pydantic-settings==2.7.0      # Settings management
 langchain==0.1.0              # LangChain core library for RAG
 langchain-google-genai==1.0.1        # Google Generative AI integration for embeddings and LLM
 langchain-qdrant==0.1.0              # Qdrant vector store integration
-langchain-community==0.0.38
+langchain-community==0.0.20  # Compatible with langsmith<0.1.0
 langsmith>=0.0.77,<0.1.0      # Required by langchain 0.1.0
 langchain-text-splitters==0.0.1
 
